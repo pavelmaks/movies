@@ -1,0 +1,43 @@
+version: '3'
+services:
+  service:
+    container_name: django_movies_app
+    build: ./app
+    env_file:
+      - ./app/config/.env
+    volumes:
+      - ./app/:/opt/app
+      - static_value:/opt/app/static/
+      - media_value:/opt/app/media/
+    expose:
+      - "8000"
+    depends_on:
+      - db
+
+  db:
+    container_name: db_movies
+    image: postgres:15
+    expose:
+      - "5432"
+    volumes:
+      - ./postgres_data/:/var/lib/postgresql/data
+      - ./dump_db/db_backup-1.sql:/docker-entrypoint-initdb.d/db_backup-1.sql
+    env_file:
+      - ./app/config/.env
+
+  nginx:
+    container_name: nginx_movies
+    image: nginx:1.25.0
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/configs/site.conf:/etc/nginx/conf.d/site.conf:ro
+      - static_value:/opt/app/static/
+      - media_value:/opt/app/media/
+    depends_on:
+      - service
+    ports:
+      - "80:80"
+
+volumes:
+  static_value:
+  media_value:
