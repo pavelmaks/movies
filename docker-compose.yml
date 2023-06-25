@@ -4,7 +4,7 @@ services:
     container_name: django_movies_app
     build: ./app
     env_file:
-      - ./app/config/.env
+      - ./.env
     volumes:
       - ./app/:/opt/app
       - static_value:/opt/app/static/
@@ -17,13 +17,35 @@ services:
   db:
     container_name: db_movies
     image: postgres:15
-    expose:
-      - "5432"
+    ports:
+      - "5432:5432"
     volumes:
       - ./postgres_data/:/var/lib/postgresql/data
       - ./dump_db/db_backup-1.sql:/docker-entrypoint-initdb.d/db_backup-1.sql
     env_file:
-      - ./app/config/.env
+      - ./.env
+
+  elastic:
+    container_name: elastic_movies
+    image: elasticsearch:8.6.2
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: false
+    ports:
+      - "9200:9200"
+    depends_on:
+      - etl
+
+  etl:
+    container_name: etl_movies
+    build: ./postgres_to_es
+    env_file:
+      - ./.env
+    volumes:
+      - ./postgres_to_es/:/opt/app
+    depends_on:
+      - db
+
 
   nginx:
     container_name: nginx_movies
