@@ -169,4 +169,4 @@ postgres_data
 logs/
 
 # storage
-etl/state/storage.json
+postgres_to_es/etl/state/storage.json
