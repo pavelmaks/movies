@@ -18,7 +18,7 @@ class PostgresSettings(BaseSettings):
     password: str = os.environ.get('POSTGRES_PASSWORD')
     host: str = os.environ.get('DB_HOST') if os.environ.get('DOCKER_CONTAINER') == '1' else '127.0.0.1'
     port: int = os.environ.get('DB_PORT', 5432)
-    database: str = os.environ.get('POSTGRES_DB')
+    dbname: str = os.environ.get('POSTGRES_DB')
     options: str = '-c search_path=content'
 
     class Config:
