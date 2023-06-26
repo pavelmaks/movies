@@ -1,5 +1,6 @@
 from functools import wraps
 from time import sleep
+from logger import logger
 
 
 def coroutine(func):
@@ -34,8 +35,7 @@ def backoff(start_sleep_time=0.1, factor=2, border_sleep_time=10):
                     sleep(t)
                     return func(*args, **kwargs)
                 except Exception as e:
-                    print(str(e))
-                    print(t)
+                    logger.info(f'No service conctection exc:{str(e)} waiting time{t}')
                     t = start_sleep_time * factor ** n if t < border_sleep_time else border_sleep_time
                     n += 1
         return inner

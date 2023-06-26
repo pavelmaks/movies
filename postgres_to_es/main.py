@@ -12,7 +12,7 @@ from etl.state.json_file_storage import JsonFileStorage
 from etl.state.models import State
 from etl.transform import transform_movies
 from logger import logger
-from settings import DSL, LAST_FILMWORK_KEY
+from settings import DSL, LAST_FILMWORK_KEY, CHECK_DATA_TIMER
 
 
 @backoff()
@@ -28,7 +28,7 @@ def main():
         while True:
             logger.info('Starting ETL process for updates ...')
             fetcher_coro_filmworks.send(state.get_state(LAST_FILMWORK_KEY) or str(datetime.min))
-            sleep(1)
+            sleep(CHECK_DATA_TIMER)
 
 
 if __name__ == '__main__':

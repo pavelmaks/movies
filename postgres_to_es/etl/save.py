@@ -36,4 +36,4 @@ def save_movies(state: State) -> Generator[list[Movie], None, None]:
             logger.info(f'Save {len(movies)} movies')
         except BulkIndexError as e:
             for error in e.errors:
-                print(f"Failed to index document: {error['index']['_id']}. Reason: {error['index']['error']}")
+                logger.info(f"Failed to index document: {error['index']['_id']}. Reason: {error['index']['error']}")

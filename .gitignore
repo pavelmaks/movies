@@ -165,8 +165,5 @@ cython_debug/
 # DATABASE
 postgres_data
 
-# Logger
-logs/
-
 # storage
 postgres_to_es/etl/state/storage.json
