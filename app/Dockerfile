@@ -10,15 +10,17 @@ ENV UWSGI_THREADS 16
 ENV UWSGI_HARAKIRI 240
 ENV DJANGO_SETTINGS_MODULE 'config.settings'
 
-# COPY uwsgi/run_uwsgi.sh run_uwsgi.sh
+COPY uwsgi/run_uwsgi.sh uwsgi/run_uwsgi.sh
 COPY requirements.txt requirements.txt
-# COPY uwsgi/uwsgi.ini uwsgi.ini
+COPY uwsgi/wait-for-it.sh uwsgi/wait-for-it.sh
 
 RUN  pip install --upgrade pip \
      && pip install -r requirements.txt
+
+RUN ["chmod", "+x", "./uwsgi/wait-for-it.sh"]
 
 # COPY . .
 
 EXPOSE 8000
 
-ENTRYPOINT ["/bin/sh", "uwsgi/run_uwsgi.sh"]
+CMD ["/bin/sh", "uwsgi/run_uwsgi.sh"]
