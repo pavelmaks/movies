@@ -1,8 +1,8 @@
 import uuid
-from typing import Any, Optional
 from datetime import datetime
+from typing import Any, List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, validator
 
 from .base_storage import BaseStorage
 
@@ -22,12 +22,13 @@ class State:
 
 class Movie(BaseModel):
     id: uuid.UUID
+    imdb_rating: Optional[float] = Field(alias='rating')
+    genre: list[str]
     title: str
     description: Optional[str]
-    # creation_date: datetime
-    rating: Optional[float]
-    # film_type: str
-    created: datetime
+    director: Optional[str]
+    actors_names: Optional[List[str]]
+    writers_names: Optional[List[str]]
+    actors: List[dict[str, str]]
+    writers: List[dict[str, str]]
     modified: datetime
-    # certificate: str
-    # file_path: str

@@ -7,7 +7,7 @@ from .base_storage import BaseStorage
 
 
 class JsonFileStorage(BaseStorage):
-    def __init__(self, logger: Logger, file_path: Optional[str] = 'storage.json'):
+    def __init__(self, logger: Logger, file_path: Optional[str] = 'etl/state/storage.json'):
         self.file_path = file_path
         self._logger = logger
 

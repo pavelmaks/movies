@@ -1,12 +1,8 @@
 import os
 
 from dotenv import load_dotenv
+
 load_dotenv()
-# dotenv_path = os.path.join(os.getcwd(), '.env')
-# if os.path.exists(dotenv_path):
-#     load_dotenv(dotenv_path)
-# else:
-#     raise Exception('Нет .env файла')
 
 DSL = {
     'dbname': os.environ.get('POSTGRES_DB'),
@@ -17,4 +13,9 @@ DSL = {
     'options': '-c search_path=content',
 }
 
-STATE_KEY = 'last_movies_updated'
+EL = {
+    'host': os.environ.get('EL_HOST') if os.environ.get('DOCKER_CONTAINER') == '1' else '127.0.0.1',
+    'port': os.environ.get('EL_PORT', 9200),
+}
+
+LAST_FILMWORK_KEY = 'last_filmwork_updated'
