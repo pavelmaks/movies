@@ -167,3 +167,6 @@ postgres_data
 
 # Logger
 logs/
+
+# storage
+etl/state/storage.json

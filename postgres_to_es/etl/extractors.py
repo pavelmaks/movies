@@ -63,7 +63,6 @@ def fetch_changed_movies(cursor: ServerCursor, next_node: Generator) -> Generato
             WHERE fw.id = ANY(%s)
             GROUP BY fw.id
             ORDER BY fw.modified;
-            LIMIT 100;
         """
         cursor.execute(sql, [fw_ids])
         while results := cursor.fetchmany(size=100):
