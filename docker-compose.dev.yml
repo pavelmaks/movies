@@ -1,0 +1,139 @@
+version: '3.7'
+services:
+  movies_admin_panel:
+      container_name: movies_admin_panel
+      build: movies_admin_panel
+      env_file:
+        - env/movies_admin_panel.env
+      volumes:
+        - ./movies_admin_panel/app/:/opt/app
+        - static_value:/opt/app/static/
+        - media_value:/opt/app/media/
+      ports:
+        - 127.0.0.1:8001:8000
+      depends_on:
+        db:
+          condition: service_healthy
+
+  movies_api:
+    container_name: movies_api
+    build: movies_api
+    env_file:
+      - env/movies_api.env
+    depends_on:
+      - movies_etl
+    ports:
+      - 127.0.0.1:8002:8000
+
+  movies_etl:
+    container_name: movies_etl
+    build: movies_etl
+    env_file:
+      - env/movies_etl.env
+    depends_on:
+      db:
+        condition: service_healthy
+      es:
+        condition: service_healthy
+
+  auth:
+    container_name: auth
+    build: auth
+    image: auth
+    entrypoint: ./entrypoint.sh
+    env_file:
+      - env/auth.env
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - 127.0.0.1:8003:8000
+    restart: always
+
+  grpc_server:
+    container_name: grpc_server
+    entrypoint: ./grpc_server/entrypoint.sh
+    image: auth
+    env_file:
+      - env/auth.env
+    depends_on:
+      - auth
+    ports:
+      - 127.0.0.1:50051:50051
+    restart: always
+
+  db:
+    container_name: db
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      -  ./init_db/multiple-databases.sh:/docker-entrypoint-initdb.d/multiple-databases.sh
+      - ./init_db/data/backup.sql:/tmp/dump.sql:ro
+    env_file:
+      - .env
+    ports:
+      - 127.0.0.1:5432:5432
+    healthcheck:
+      test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'" ]
+      interval: 5s
+      timeout: 5s
+      retries: 50
+    restart: on-failure
+
+  es:
+    container_name: elastic_movies
+    image: elasticsearch:8.6.2
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - 127.0.0.1:9200:9200
+    healthcheck:
+      test: curl -sS http://localhost:9200/_cat/health?h=status | grep -q 'green\|yellow'
+      interval: 5s
+      timeout: 1s
+      retries: 5
+
+  redis:
+    container_name: redis_movies
+    image: redis:7.0.11
+    ports:
+      - 127.0.0.1:6379:6379
+    volumes:
+      - ./redis/cache:/data
+
+  nginx:
+    container_name: nginx
+    image: nginx:1.25.0
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/configs/:/etc/nginx/conf.d/:ro
+      - static_value:/opt/app/static/
+      - media_value:/opt/app/media/
+    depends_on:
+      - movies_admin_panel
+      - movies_api
+      - auth
+    ports:
+      - 80:80
+    restart: always
+
+  jaeger:
+    container_name: jaeger
+    image: jaegertracing/all-in-one
+    ports:
+      - "127.0.0.1:5775:5775/udp"
+      - "127.0.0.1:6831:6831/udp"
+      - "127.0.0.1:6832:6832/udp"
+      - "127.0.0.1:5778:5778"
+      - "127.0.0.1:16686:16686"
+      - "127.0.0.1:14268:14268"
+      - "127.0.0.1:9411:9411"
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  static_value:
+  media_value:
+

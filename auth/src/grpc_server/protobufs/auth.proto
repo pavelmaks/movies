@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+
+message CheckTokenRequest {
+    string token = 1;
+}
+
+message AuthInfo {
+    bool is_success = 1;
+}
+
+message CheckTokenResponse {
+    repeated AuthInfo validations = 1;
+}
+
+message AuthorizationRequest {
+    string login = 1;
+    string password = 2;
+}
+
+message AuthorizationResponse {
+    map<string, string> tokens = 1;
+}
+
+service Auth {
+    rpc CheckerToken (CheckTokenRequest) returns (CheckTokenResponse);
+    rpc LoginAuth (AuthorizationRequest) returns (AuthorizationResponse);
+}
