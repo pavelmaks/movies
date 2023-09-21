@@ -1,7 +1,5 @@
 # Проектная работа 7 спринта
 
-Git: https://github.com/daybishop/Auth_sprint_2
-
 ## Запуск
 docker-compose -f docker-compose.dev.yml up
 
